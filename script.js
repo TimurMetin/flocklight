@@ -50,11 +50,45 @@ const W = CONFIG.CANVAS_WIDTH;
 const H = CONFIG.CANVAS_HEIGHT;
 const goal = { x: 925, y: 275, radius: 47 };
 const homeAnchor = { x: 150, y: 275 };
-const obstacles = [
+const BASE_OBSTACLES = [
   { x: 420, y: 170, r: 72, seed: 2 },
   { x: 625, y: 365, r: 89, seed: 5 },
   { x: 765, y: 115, r: 48, seed: 8 }
 ];
+
+// LEVELS is intentionally easy to edit in front of the class.
+const LEVELS = [
+  { name: 'THE MOON GATE', note: 'Learn how connected lights guide a swarm.', treeMargin: 8, beaconRadius: 250, linkMax: 235, time: 50, obstacles: BASE_OBSTACLES },
+  { name: 'THICK FOREST', note: 'A tighter passage raises the risk.', treeMargin: 14, beaconRadius: 250, linkMax: 235, time: 50, obstacles: [...BASE_OBSTACLES, { x: 550, y: 65, r: 36, seed: 10 }] },
+  { name: 'LAST LIGHT', note: 'Shorter light ranges mean careful placement.', treeMargin: 17, beaconRadius: 225, linkMax: 220, time: 55, obstacles: [...BASE_OBSTACLES, { x: 535, y: 75, r: 34, seed: 11 }] }
+];
+let currentLevel = 0;
+let obstacles = LEVELS[0].obstacles;
+const levelNumber = document.getElementById('levelNumber');
+const levelName = document.getElementById('levelName');
+const missionLabel = document.getElementById('missionLabel');
+const nextLevelButton = document.getElementById('nextLevelButton');
+const endStars = document.getElementById('endStars');
+const levelButtons = [...document.querySelectorAll('[data-level]')];
+function chooseLevel(index) {
+  currentLevel = Math.max(0, Math.min(LEVELS.length - 1, index));
+  const level = LEVELS[currentLevel];
+  obstacles = level.obstacles;
+  CONFIG.TREE_COLLISION_MARGIN = level.treeMargin;
+  CONFIG.BEACON_RADIUS = level.beaconRadius;
+  CONFIG.BEACON_LINK_MAX = level.linkMax;
+  CONFIG.ROUND_SECONDS = level.time;
+  levelNumber.textContent = String(currentLevel + 1).padStart(2, '0');
+  levelName.textContent = level.name;
+  missionLabel.textContent = `Level ${currentLevel + 1}: Rescue at least 16`;
+  startButton.innerHTML = `START LEVEL ${String(currentLevel + 1).padStart(2,'0')} <span>↗</span>`;
+  document.querySelector('.start-card > p').innerHTML = `${level.note} Guide at least <b>16 of 24</b> fireflies home using only three connected lights.`;
+  levelButtons.forEach((button, i) => {
+    button.classList.toggle('selected', i === currentLevel);
+    button.setAttribute('aria-pressed', String(i === currentLevel));
+  });
+  resetGame();
+}
 
 let fireflies = [];
 let beacons = [];
@@ -114,6 +148,7 @@ function resetGame() {
   cursor = { x: 270, y: 275, visible: false };
   startOverlay.classList.remove('hidden');
   endOverlay.classList.add('hidden');
+  nextLevelButton.classList.add('hidden');
   placeButton.disabled = true;
   instructionTitle.textContent = 'Build a connected light path';
   instructionText.textContent = 'Start near the fireflies. Each new light must reach the previous one.';
@@ -155,6 +190,7 @@ function startGame() {
   cursor = { x: 280, y: 275, visible: true };
   startOverlay.classList.add('hidden');
   endOverlay.classList.add('hidden');
+  nextLevelButton.classList.add('hidden');
   instructionTitle.textContent = 'Place light 1 near the clearing';
   instructionText.textContent = 'Connect all 3 lights in order. Amber rings are dangerous — guide around the trees.';
   setStatus('THE SWARM IS MOVING', true);
@@ -171,6 +207,10 @@ function finishGame(won) {
   setStatus(won ? 'MISSION COMPLETE' : 'NIGHT IS OVER', false);
   endKicker.textContent = won ? 'THE MOON GATE IS OPEN' : 'THE NIGHT HAS ENDED';
   endTitle.textContent = won ? 'You brought them home.' : (fireflies.length === 0 ? 'The forest went dark.' : 'Some lights got lost.');
+  const stars = saved >= 24 ? 3 : saved >= 20 ? 2 : saved >= CONFIG.TARGET_RESCUED ? 1 : 0;
+  endStars.textContent = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+  endStars.setAttribute('aria-label', `${stars} out of 3 stars`);
+  nextLevelButton.classList.toggle('hidden', !won || currentLevel >= LEVELS.length - 1);
   endMessage.textContent = won
     ? `${saved} fireflies found the Moon Gate. ${lost} were lost in the trees.`
     : `${saved} of ${CONFIG.TARGET_RESCUED} needed fireflies made it home. ${lost} were lost in the trees. Try a safer route.`;
@@ -261,10 +301,8 @@ function loop(now) {
   updateHud();
   draw(now);
 
-  if (saved >= CONFIG.TARGET_RESCUED) {
-    finishGame(true);
-  } else if (timeLeft <= 0 || fireflies.length === 0) {
-    finishGame(false);
+  if (timeLeft <= 0 || fireflies.length === 0) {
+    finishGame(saved >= CONFIG.TARGET_RESCUED);
   } else {
     animationId = requestAnimationFrame(loop);
   }
@@ -638,6 +676,8 @@ canvas.addEventListener('pointerdown', event => {
 
 startButton.addEventListener('click', startGame);
 againButton.addEventListener('click', startGame);
+nextLevelButton.addEventListener('click', () => { chooseLevel(currentLevel + 1); startGame(); });
+levelButtons.forEach(button => button.addEventListener('click', () => chooseLevel(Number(button.dataset.level))));
 placeButton.addEventListener('click', () => placeBeacon(cursor));
 document.querySelectorAll('[data-move]').forEach(button => {
   button.addEventListener('click', () => {
@@ -668,4 +708,4 @@ document.addEventListener('keydown', event => {
 });
 
 createBackgroundParticles();
-resetGame();
+chooseLevel(0);

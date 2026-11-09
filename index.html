@@ -32,19 +32,19 @@
         </div>
         <div class="mission-chip">
           <div class="mission-moon">☾</div>
-          <div><span>TONIGHT'S MISSION</span><strong>Bring 16 fireflies home</strong></div>
+          <div><span>TONIGHT'S MISSION</span><strong id="missionLabel">Bring 16 fireflies home</strong></div>
         </div>
       </section>
 
       <section class="game-card" aria-label="Flocklight game">
         <div class="game-topline">
-          <div class="level-label"><span class="level-number">01</span><span>THE MOON GATE</span></div>
+          <div class="level-label"><span class="level-number" id="levelNumber">01</span><span id="levelName">THE MOON GATE</span></div>
           <div class="game-status"><span class="status-dot" id="statusDot"></span><span id="statusText" aria-live="polite">WAITING FOR YOU</span></div>
         </div>
 
         <div class="hud" aria-label="Game status">
           <div class="hud-item saved-hud">
-            <div class="hud-label">HOME SAFE</div>
+            <div class="hud-label">HOME SAFE <span class="star-hint">★ 16 · ★★ 20 · ★★★ 24</span></div>
             <div class="hud-value"><strong id="savedValue">00</strong><span> / 16</span></div>
             <div class="hud-track"><div id="savedBar"></div></div>
           </div>
@@ -76,14 +76,14 @@
               <div class="overlay-kicker">A QUIET LITTLE RESCUE</div>
               <h2>Light the way.</h2>
               <p>Guide at least <b>16 of 24</b> fireflies home. Connect 3 lights in order and keep the swarm clear of the dangerous trees.</p>
-              <div class="mobile-howto">Connect 3 lights in order. Trees are dangerous: fireflies that hit a trunk are lost.</div>
+              <div class="level-picker" role="group" aria-label="Choose a forest level"><button type="button" class="level-choice selected" data-level="0" aria-pressed="true">01<br><b>MOON GATE</b><small>Learn the route</small></button><button type="button" class="level-choice" data-level="1" aria-pressed="false">02<br><b>THICK FOREST</b><small>More hazards</small></button><button type="button" class="level-choice" data-level="2" aria-pressed="false">03<br><b>LAST LIGHT</b><small>Shorter reach</small></button></div><div class="mobile-howto">Connect 3 lights in order. Trees are dangerous: fireflies that hit a trunk are lost.</div>
               <div class="how-to">
                 <div><span>01</span><b>START NEARBY</b><small>Place light 1 inside the clearing signal range.</small></div>
                 <div><span>02</span><b>CONNECT THE ROUTE</b><small>Each light must reach the previous circle and move forward.</small></div>
                 <div><span>03</span><b>AVOID THE TREES</b><small>Fireflies that hit a trunk are lost. Rescue 16 to win.</small></div>
               </div>
-              <button class="primary-button" id="startButton" type="button">START THE NIGHT <span>↗</span></button>
-              <div class="start-footnote">DOTTED CIRCLES = SIGNAL RANGE · AMBER RINGS = DANGER</div>
+              <button class="primary-button" id="startButton" type="button">START LEVEL 01 <span>↗</span></button>
+              <div class="start-footnote">CLICK TO PLACE LIGHTS 1 → 2 → 3 · DOTTED CIRCLES = RANGE · AMBER RINGS = DANGER</div>
             </div>
           </div>
 
@@ -92,8 +92,8 @@
               <div class="end-symbol" id="endSymbol">✦</div>
               <div class="overlay-kicker" id="endKicker">NIGHT COMPLETE</div>
               <h2 id="endTitle">You brought them home.</h2>
-              <p id="endMessage">The swarm found its way together.</p>
-              <button class="primary-button" id="againButton" type="button">PLAY AGAIN <span>↻</span></button>
+              <div class="end-stars" id="endStars" aria-label="Star rating">☆☆☆</div><p id="endMessage">The swarm found its way together.</p>
+              <button class="primary-button" id="againButton" type="button">PLAY AGAIN <span>↻</span></button><button class="next-level-button hidden" id="nextLevelButton" type="button">NEXT LEVEL →</button>
             </div>
           </div>
 
