@@ -15,4 +15,4 @@ Code testing showed that the first version guided the swarm to the exit even whe
 
 
 ## Live project link
-Paste the published GitHub Pages URL here before submission.
+https://timurmetin.github.io/flocklight/
